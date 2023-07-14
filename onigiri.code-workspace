@@ -1,0 +1,24 @@
+{
+    "folders": [
+        {
+            "path": "app/",
+            "name": "Backend"
+        },
+        {
+            "path": "ui/",
+            "name": "Frontend"
+        },
+        {
+            "path": "./",
+            "name": "Root"
+        },
+    ],
+    "settings": {
+        "editor.formatOnSave": true,
+        "files.exclude": {
+            "**/__pycache__": true,
+            "**/.mypy_cache": true,
+            "**/.pytest_cache": true,
+        },
+    }
+}
