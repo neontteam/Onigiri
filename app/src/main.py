@@ -9,8 +9,8 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from src.core.accounts import hash_password, verify_password
-from src.models import (
+from src.core.services.accounts import hash_password, verify_password
+from src.api.models import (
     Chat,
     ChatResponse,
     LoginRequest,
@@ -40,7 +40,9 @@ app.add_middleware(
 
 
 def get_random_message(author: str | None = None) -> Message:
-    _author = random.choice(list(MessageAuthor)) if author is None else MessageAuthor(author)
+    _author = (
+        random.choice(list(MessageAuthor)) if author is None else MessageAuthor(author)
+    )
     match _author:
         case MessageAuthor.USER:
             message = "Hello, System!"
@@ -49,32 +51,47 @@ def get_random_message(author: str | None = None) -> Message:
         case other:
             raise ValueError(f"Invalid author: {other}")
     return pydantic.parse_obj_as(
-        MessageAnnotation, dict(author=_author.value, message=message, sent_timestamp=DEFAULT_TIMESTAMP.isoformat())
+        MessageAnnotation,
+        dict(
+            author=_author.value,
+            message=message,
+            sent_timestamp=DEFAULT_TIMESTAMP.isoformat(),
+        ),
     )
 
 
 @app.get("/")
 def root():
     """Root of the API, returns the status 418 (GET)"""
-    return JSONResponse(status_code=status.HTTP_418_IM_A_TEAPOT, content={"msg": "I'm a teapot"})
+    return JSONResponse(
+        status_code=status.HTTP_418_IM_A_TEAPOT, content={"msg": "I'm a teapot"}
+    )
 
 
 @app.get("/health-check")
 def health_check():
     """Health check (GET)"""
-    return JSONResponse(status_code=status.HTTP_200_OK, content={"msg": "Server is healthy!"})
+    return JSONResponse(
+        status_code=status.HTTP_200_OK, content={"msg": "Server is healthy!"}
+    )
 
 
 @app.post("/login")
 def login(request: LoginRequest):
     """Login user (POST)"""
-    USERNAME = "admin"
-    PASSWORD = hash_password("admin")
-    if USERNAME == request.username and verify_password(PASSWORD, request.password.get_secret_value()):
+    username = "admin"
+    password = hash_password("admin")
+    if username == request.username and verify_password(
+        password, request.password.get_secret_value()
+    ):
         # I should send a redirect here, but I'm lazy
-        return JSONResponse(status_code=status.HTTP_200_OK, content={"msg": "Login successful!"})
+        return JSONResponse(
+            status_code=status.HTTP_200_OK, content={"msg": "Login successful!"}
+        )
     else:
-        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"msg": "Login failed!"})
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED, content={"msg": "Login failed!"}
+        )
 
 
 @app.post("/chats/new", response_model=Chat)
@@ -82,11 +99,14 @@ def new_chat():
     """Creates a new chat (POST)"""
     try:
         chat = Chat(chat_id=uuid.uuid4().hex)
-        return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(chat))
-    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_200_OK, content=jsonable_encoder(chat)
+        )
+    except Exception:
         traceback.print_exc()
         return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST, content={"msg": "Could not create new chat session."}
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"msg": "Could not create new chat session."},
         )
 
 
@@ -97,9 +117,12 @@ def list_chats():
         num_chats = random.randint(1, 10)
         chats: list[str] = [uuid.uuid4().hex for _ in range(num_chats)]
         return JSONResponse(status_code=status.HTTP_200_OK, content=chats)
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
-        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"msg": "Could not get list of chats."})
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"msg": "Could not get list of chats."},
+        )
 
 
 @app.get("/chats/{chat_id}/chat", response_model=Chat)
@@ -109,11 +132,15 @@ def chat(chat_id: str):
         num_messages = random.randint(1, 20)
         messages: list[Message] = [get_random_message() for _ in range(num_messages)]
         return JSONResponse(
-            status_code=status.HTTP_200_OK, content=jsonable_encoder(Chat(chat_id=chat_id, messages=messages))
+            status_code=status.HTTP_200_OK,
+            content=jsonable_encoder(Chat(chat_id=chat_id, messages=messages)),
         )
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
-        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"msg": "Could not get chat messages."})
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"msg": "Could not get chat messages."},
+        )
 
 
 @app.post("/chats/{chat_id}/chat/input", response_model=ChatResponse)
@@ -122,12 +149,14 @@ def chat_input(chat_id: str, request: UserMessage):
     try:
         message: SystemMessage = get_random_message(author="system")
         return JSONResponse(
-            status_code=status.HTTP_200_OK, content=jsonable_encoder(ChatResponse(chat_id=chat_id, message=message))
+            status_code=status.HTTP_200_OK,
+            content=jsonable_encoder(ChatResponse(chat_id=chat_id, message=message)),
         )
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST, content={"msg": "Could not process input message."}
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"msg": "Could not process input message."},
         )
 
 
@@ -135,9 +164,13 @@ def chat_input(chat_id: str, request: UserMessage):
 def chat_delete(chat_id: str):
     """Deletes a specific chat by `chat_id` (DELETE)"""
     try:
-        return JSONResponse(status_code=status.HTTP_200_OK, content=dict(chat_id=chat_id, message="Done!"))
-    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=dict(chat_id=chat_id, message="Done!"),
+        )
+    except Exception:
         traceback.print_exc()
         return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST, content={"msg": "Could not process input message."}
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"msg": "Could not process input message."},
         )
