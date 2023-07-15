@@ -14,12 +14,18 @@
         },
     ],
     "settings": {
-        "editor.formatOnSave": true,
         "files.exclude": {
             "**/__pycache__": true,
             "**/.mypy_cache": true,
             "**/.pytest_cache": true,
         },
+        // Live server. Docs: https://github.com/ritwickdey/vscode-live-server/blob/master/docs/faqs.md
         "liveServer.settings.multiRootWorkspaceName": "Frontend",
+        "liveServer.settings.port": 5500,
+        "liveServer.settings.ignoreFiles": [
+            ".vscode/**",
+            "**/*.scss",
+            "**/*.sass"
+        ],
     }
 }
