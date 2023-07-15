@@ -20,5 +20,6 @@
             "**/.mypy_cache": true,
             "**/.pytest_cache": true,
         },
+        "liveServer.settings.multiRootWorkspaceName": "Frontend",
     }
 }

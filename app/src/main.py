@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import pydantic
 from fastapi import FastAPI, status
 from fastapi.encoders import jsonable_encoder
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from src.core.accounts import hash_password, verify_password
@@ -23,6 +24,19 @@ from src.models import (
 DEFAULT_TIMESTAMP = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 def get_random_message(author: str | None = None) -> Message:
@@ -53,7 +67,7 @@ def health_check():
 
 @app.post("/login")
 def login(request: LoginRequest):
-    """Health check (GET)"""
+    """Login user (POST)"""
     USERNAME = "admin"
     PASSWORD = hash_password("admin")
     if USERNAME == request.username and verify_password(PASSWORD, request.password.get_secret_value()):
