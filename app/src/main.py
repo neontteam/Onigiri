@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime, timezone
 
 import pydantic
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
@@ -40,13 +40,13 @@ def get_random_message(author: str | None = None) -> Message:
 @app.get("/")
 def root():
     """Root of the API, returns the status 418 (GET)"""
-    return JSONResponse(status_code=418, content={"msg": "I'm a teapot"})
+    return JSONResponse(status_code=status.HTTP_418_IM_A_TEAPOT, content={"msg": "I'm a teapot"})
 
 
 @app.get("/health-check")
 def health_check():
     """Health check (GET)"""
-    return JSONResponse(status_code=200, content={"msg": "Server is healthy!"})
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"msg": "Server is healthy!"})
 
 
 @app.post("/chats/new", response_model=Chat)
@@ -54,10 +54,12 @@ def new_chat():
     """Creates a new chat (POST)"""
     try:
         chat = Chat(chat_id=uuid.uuid4().hex)
-        return JSONResponse(status_code=200, content=jsonable_encoder(chat))
+        return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(chat))
     except Exception as e:
         traceback.print_exc()
-        return JSONResponse(status_code=400, content={"msg": "Could not create new chat session."})
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST, content={"msg": "Could not create new chat session."}
+        )
 
 
 @app.get("/chats/list", response_model=list[str])
@@ -66,10 +68,10 @@ def list_chats():
     try:
         num_chats = random.randint(1, 10)
         chats: list[str] = [uuid.uuid4().hex for _ in range(num_chats)]
-        return JSONResponse(status_code=200, content=chats)
+        return JSONResponse(status_code=status.HTTP_200_OK, content=chats)
     except Exception as e:
         traceback.print_exc()
-        return JSONResponse(status_code=400, content={"msg": "Could not get list of chats."})
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"msg": "Could not get list of chats."})
 
 
 @app.get("/chats/{chat_id}/chat", response_model=Chat)
@@ -78,10 +80,12 @@ def chat(chat_id: str):
     try:
         num_messages = random.randint(1, 20)
         messages: list[Message] = [get_random_message() for _ in range(num_messages)]
-        return JSONResponse(status_code=200, content=jsonable_encoder(Chat(chat_id=chat_id, messages=messages)))
+        return JSONResponse(
+            status_code=status.HTTP_200_OK, content=jsonable_encoder(Chat(chat_id=chat_id, messages=messages))
+        )
     except Exception as e:
         traceback.print_exc()
-        return JSONResponse(status_code=400, content={"msg": "Could not get chat messages."})
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"msg": "Could not get chat messages."})
 
 
 @app.post("/chats/{chat_id}/chat/input", response_model=ChatResponse)
@@ -89,17 +93,23 @@ def chat_input(chat_id: str, request: UserMessage):
     """Posts input to a specific chat identified by `chat_id` (POST)"""
     try:
         message: SystemMessage = get_random_message(author="system")
-        return JSONResponse(status_code=200, content=jsonable_encoder(ChatResponse(chat_id=chat_id, message=message)))
+        return JSONResponse(
+            status_code=status.HTTP_200_OK, content=jsonable_encoder(ChatResponse(chat_id=chat_id, message=message))
+        )
     except Exception as e:
         traceback.print_exc()
-        return JSONResponse(status_code=400, content={"msg": "Could not process input message."})
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST, content={"msg": "Could not process input message."}
+        )
 
 
 @app.delete("/chats/{chat_id}/delete")
 def chat_delete(chat_id: str):
     """Deletes a specific chat by `chat_id` (DELETE)"""
     try:
-        return JSONResponse(status_code=200, content=dict(chat_id=chat_id, message="Done!"))
+        return JSONResponse(status_code=status.HTTP_200_OK, content=dict(chat_id=chat_id, message="Done!"))
     except Exception as e:
         traceback.print_exc()
-        return JSONResponse(status_code=400, content={"msg": "Could not process input message."})
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST, content={"msg": "Could not process input message."}
+        )
