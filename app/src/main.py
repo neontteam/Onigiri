@@ -61,7 +61,7 @@ def get_random_message(author: str | None = None) -> Message:
 
 
 @app.get("/")
-def root():
+async def root():
     """Root of the API, returns the status 418 (GET)"""
     return JSONResponse(
         status_code=status.HTTP_418_IM_A_TEAPOT, content={"msg": "I'm a teapot"}
@@ -69,7 +69,7 @@ def root():
 
 
 @app.get("/health-check")
-def health_check():
+async def health_check():
     """Health check (GET)"""
     return JSONResponse(
         status_code=status.HTTP_200_OK, content={"msg": "Server is healthy!"}
@@ -77,7 +77,7 @@ def health_check():
 
 
 @app.post("/login")
-def login(request: LoginRequest):
+async def login(request: LoginRequest):
     """Login user (POST)"""
     username = "admin"
     password = hash_password("admin")
@@ -95,7 +95,7 @@ def login(request: LoginRequest):
 
 
 @app.post("/chats/new", response_model=Chat)
-def new_chat():
+async def new_chat():
     """Creates a new chat (POST)"""
     try:
         chat = Chat(chat_id=uuid.uuid4().hex)
@@ -111,7 +111,7 @@ def new_chat():
 
 
 @app.get("/chats/list", response_model=list[str])
-def list_chats():
+async def list_chats():
     """Lists all chats (GET)"""
     try:
         num_chats = random.randint(1, 10)
@@ -126,7 +126,7 @@ def list_chats():
 
 
 @app.get("/chats/{chat_id}/chat", response_model=Chat)
-def chat(chat_id: str):
+async def chat(chat_id: str):
     """Retrieves a specific chat by `chat_id` (GET)"""
     try:
         num_messages = random.randint(1, 20)
@@ -144,7 +144,7 @@ def chat(chat_id: str):
 
 
 @app.post("/chats/{chat_id}/chat/input", response_model=ChatResponse)
-def chat_input(chat_id: str, request: UserMessage):
+async def chat_input(chat_id: str, request: UserMessage):
     """Posts input to a specific chat identified by `chat_id` (POST)"""
     try:
         message: SystemMessage = get_random_message(author="system")
@@ -161,7 +161,7 @@ def chat_input(chat_id: str, request: UserMessage):
 
 
 @app.delete("/chats/{chat_id}/delete")
-def chat_delete(chat_id: str):
+async def chat_delete(chat_id: str):
     """Deletes a specific chat by `chat_id` (DELETE)"""
     try:
         return JSONResponse(

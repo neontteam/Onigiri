@@ -44,7 +44,7 @@ case ${1:-} in
     
     "redeploy")
         echo "Stop, re-build and redeploying container..."
-        docker stop onigiri_app
+        docker stop onigiri_app || true
         docker build -t onigiri-app:latest .
         docker run -d --rm --name onigiri_app -p 8000:8000 onigiri-app:latest
         ;;
