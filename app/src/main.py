@@ -8,9 +8,11 @@ from fastapi import FastAPI, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
+from src.core.accounts import hash_password, verify_password
 from src.models import (
     Chat,
     ChatResponse,
+    LoginRequest,
     Message,
     MessageAnnotation,
     MessageAuthor,
@@ -47,6 +49,18 @@ def root():
 def health_check():
     """Health check (GET)"""
     return JSONResponse(status_code=status.HTTP_200_OK, content={"msg": "Server is healthy!"})
+
+
+@app.post("/login")
+def login(request: LoginRequest):
+    """Health check (GET)"""
+    USERNAME = "admin"
+    PASSWORD = hash_password("admin")
+    if USERNAME == request.username and verify_password(PASSWORD, request.password.get_secret_value()):
+        # I should send a redirect here, but I'm lazy
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"msg": "Login successful!"})
+    else:
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"msg": "Login failed!"})
 
 
 @app.post("/chats/new", response_model=Chat)

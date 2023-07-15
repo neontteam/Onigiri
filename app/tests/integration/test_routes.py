@@ -26,6 +26,28 @@ def test_health_check():
     assert response.json() == dict(msg="Server is healthy!")
 
 
+def test_login_success():
+    # Arrange
+    url = BASE_URL + "login"
+    user = dict(username="admin", password="admin")
+    # Act
+    response = requests.post(url, json=user)
+    # Assert
+    assert response.status_code == 200
+    assert response.json() == dict(msg="Login successful!")
+
+
+def test_login_failed():
+    # Arrange
+    url = BASE_URL + "login"
+    user = dict(username="admin", password="wrong-password")
+    # Act
+    response = requests.post(url, json=user)
+    # Assert
+    assert response.status_code == 401
+    assert response.json() == dict(msg="Login failed!")
+
+
 def test_new_chat():
     # Arrange
     url = BASE_URL + "chats/new"

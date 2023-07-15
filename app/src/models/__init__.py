@@ -10,6 +10,11 @@ def add_utc_timezone(value: datetime) -> datetime:
     return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
 
 
+class LoginRequest(pydantic.BaseModel):
+    username: str
+    password: pydantic.SecretStr
+
+
 class MessageAuthor(str, enum.Enum):
     USER = "user"
     SYSTEM = "system"
