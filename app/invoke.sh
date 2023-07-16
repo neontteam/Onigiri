@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
+
+source .openai_credentials.env
 export PYTHONPATH="$(pwd)"
 
 # Reference: https://opensource.com/article/19/12/help-bash-program
