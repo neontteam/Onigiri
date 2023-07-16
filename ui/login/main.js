@@ -37,7 +37,7 @@ document.getElementById('login-submit').addEventListener('click', function (even
         }) // assuming the response is JSON
         .then(data => {
             if (data) {
-                window.location.href = "http://127.0.0.1:5500/chat/index.html";
+                window.location.href = "http://127.0.0.1:5701/chat/index.html";
             } else {
                 alert('Error: Login failed'); // handle login failure
             }

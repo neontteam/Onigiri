@@ -9,7 +9,6 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from src.core.services.accounts import hash_password, verify_password
 from src.api.models import (
     Chat,
     ChatResponse,
@@ -20,16 +19,15 @@ from src.api.models import (
     SystemMessage,
     UserMessage,
 )
+from src.api.services.accounts import hash_password, verify_password
 
 DEFAULT_TIMESTAMP = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 app = FastAPI()
 
 origins = [
-    "http://localhost:5500",
-    "http://127.0.0.1:5500",
-    "http://localhost:5501",
-    "http://127.0.0.1:5501",
+    "http://localhost:5701",
+    "http://127.0.0.1:5701",
 ]
 
 app.add_middleware(
@@ -42,9 +40,7 @@ app.add_middleware(
 
 
 def get_random_message(author: str | None = None) -> Message:
-    _author = (
-        random.choice(list(MessageAuthor)) if author is None else MessageAuthor(author)
-    )
+    _author = random.choice(list(MessageAuthor)) if author is None else MessageAuthor(author)
     match _author:
         case MessageAuthor.USER:
             message = "Hello, System!"
@@ -65,17 +61,13 @@ def get_random_message(author: str | None = None) -> Message:
 @app.get("/")
 async def root():
     """Root of the API, returns the status 418 (GET)"""
-    return JSONResponse(
-        status_code=status.HTTP_418_IM_A_TEAPOT, content={"msg": "I'm a teapot"}
-    )
+    return JSONResponse(status_code=status.HTTP_418_IM_A_TEAPOT, content={"msg": "I'm a teapot"})
 
 
 @app.get("/health-check")
 async def health_check():
     """Health check (GET)"""
-    return JSONResponse(
-        status_code=status.HTTP_200_OK, content={"msg": "Server is healthy!"}
-    )
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"msg": "Server is healthy!"})
 
 
 @app.post("/login")
@@ -83,17 +75,11 @@ async def login(request: LoginRequest):
     """Login user (POST)"""
     username = "admin"
     password = hash_password("admin")
-    if username == request.username and verify_password(
-        password, request.password.get_secret_value()
-    ):
+    if username == request.username and verify_password(password, request.password.get_secret_value()):
         # I should send a redirect here, but I'm lazy
-        return JSONResponse(
-            status_code=status.HTTP_200_OK, content={"msg": "Login successful!"}
-        )
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"msg": "Login successful!"})
     else:
-        return JSONResponse(
-            status_code=status.HTTP_401_UNAUTHORIZED, content={"msg": "Login failed!"}
-        )
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"msg": "Login failed!"})
 
 
 @app.post("/chats/new", response_model=Chat)
@@ -101,9 +87,7 @@ async def new_chat():
     """Creates a new chat (POST)"""
     try:
         chat = Chat(chat_id=uuid.uuid4().hex)
-        return JSONResponse(
-            status_code=status.HTTP_200_OK, content=jsonable_encoder(chat)
-        )
+        return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(chat))
     except Exception:
         traceback.print_exc()
         return JSONResponse(

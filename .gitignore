@@ -5,3 +5,6 @@ app/.vscode/settings.json
 # Python
 __pycache__/
 .pytest_cache/
+
+# Secrets
+.openai_credentials.env
