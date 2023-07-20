@@ -1,9 +1,9 @@
+from langchain.chat_models import ChatOpenAI
+from langchain.schema import AIMessage, HumanMessage, SystemMessage
+
 from .config import LanguageModelConfig, LanguageModelType
 from .credentials_provider import CredentialProvider
 from .prompts import SystemPromptType, system_prompt_library
-
-from langchain.chat_models import ChatOpenAI
-from langchain.schema import AIMessage, HumanMessage, SystemMessage
 
 
 class LanguageModelService:
