@@ -1,6 +1,6 @@
 import pydantic
 
-from .message import MessageAnnotation, SystemMessage
+from .message import AgentMessage, MessageAnnotation
 
 
 class Chat(pydantic.BaseModel):
@@ -10,4 +10,4 @@ class Chat(pydantic.BaseModel):
 
 class ChatResponse(pydantic.BaseModel):
     chat_id: str
-    message: SystemMessage
+    message: AgentMessage

@@ -12,7 +12,7 @@ def add_utc_timezone(value: datetime) -> datetime:
 
 class MessageAuthor(str, enum.Enum):
     USER = "user"
-    SYSTEM = "system"
+    AGENT = "agent"
 
 
 class Message(pydantic.BaseModel):
@@ -37,8 +37,8 @@ class UserMessage(Message):
     author: Literal[MessageAuthor.USER] = pydantic.Field(MessageAuthor.USER, const=True)
 
 
-class SystemMessage(Message):
-    author: Literal[MessageAuthor.SYSTEM] = pydantic.Field(MessageAuthor.SYSTEM, const=True)
+class AgentMessage(Message):
+    author: Literal[MessageAuthor.AGENT] = pydantic.Field(MessageAuthor.AGENT, const=True)
 
 
-MessageAnnotation = Annotated[Union[UserMessage, SystemMessage], pydantic.Field(discriminator="author")]
+MessageAnnotation = Annotated[Union[UserMessage, AgentMessage], pydantic.Field(discriminator="author")]

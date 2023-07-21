@@ -10,13 +10,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from src.api.models import (
+    AgentMessage,
     Chat,
     ChatResponse,
     LoginRequest,
     Message,
     MessageAnnotation,
     MessageAuthor,
-    SystemMessage,
     UserMessage,
 )
 from src.api.services.accounts import hash_password, verify_password
@@ -44,7 +44,7 @@ def get_random_message(author: str | None = None) -> Message:
     match _author:
         case MessageAuthor.USER:
             message = "Hello, System!"
-        case MessageAuthor.SYSTEM:
+        case MessageAuthor.AGENT:
             message = "Hello, User!"
         case other:
             raise ValueError(f"Invalid author: {other}")
@@ -133,7 +133,7 @@ async def chat(chat_id: str):
 async def chat_input(chat_id: str, request: UserMessage):
     """Posts input to a specific chat identified by `chat_id` (POST)"""
     try:
-        message: SystemMessage = get_random_message(author="system")
+        message: AgentMessage = get_random_message(author="agent")
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=jsonable_encoder(ChatResponse(chat_id=chat_id, message=message)),
