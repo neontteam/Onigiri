@@ -1,9 +1,11 @@
 import random
 import traceback
 import uuid
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 
 import pydantic
+import sqlalchemy.exc
 from fastapi import FastAPI, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,13 +19,22 @@ from src.api.models import (
     Message,
     MessageAnnotation,
     MessageAuthor,
+    SubscribeWaitlistRequest,
     UserMessage,
 )
 from src.api.services.accounts import hash_password, verify_password
+from src.db import add_to_waitlist, init_db
 
 DEFAULT_TIMESTAMP = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):  # pylint: disable=unused-argument
+    init_db()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 origins = [
     "http://localhost:5701",
@@ -68,6 +79,34 @@ async def root():
 async def health_check():
     """Health check (GET)"""
     return JSONResponse(status_code=status.HTTP_200_OK, content={"msg": "Server is healthy!"})
+
+
+# Test with: curl -X POST -H "Content-Type: application/json" -d '{"email": "some@example.com"}' http://localhost:8000/waitlist/subscribe -w "\nHTTP status code: %{http_code}\n"
+@app.post("/waitlist/subscribe")
+async def subscribe(request: SubscribeWaitlistRequest):
+    """Subscribe to waitlist (POST)"""
+    try:
+        _ = add_to_waitlist(request.email)
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"msg": "Added to waitlist!"})
+    except sqlalchemy.exc.DatabaseError as e:
+        match e.code:
+            case "gkpj" if "UNIQUE constraint failed:" in str(e):
+                return JSONResponse(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    content={"msg": "Email already exists in waitlist!"},
+                )
+            case _:
+                return JSONResponse(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    content={"msg": "Unknown database error!"},
+                )
+    except Exception as e:
+        print(type(e))
+        traceback.print_exc()
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"msg": "Could not add to waitlist. Try again later"},
+        )
 
 
 @app.post("/login")

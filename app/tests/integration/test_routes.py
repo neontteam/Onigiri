@@ -26,7 +26,38 @@ def test_health_check():
     assert response.json() == dict(msg="Server is healthy!")
 
 
-def test_login_success():
+def test_waitlist_subscribe():
+    # Type=Success
+    # Arrange
+    url = BASE_URL + "waitlist/subscribe"
+    data = dict(email="some1@example.com")
+    # Act
+    response = requests.post(url, json=data)
+    # Assert
+    assert response.status_code == 200
+    assert response.json() == dict(msg="Added to waitlist!")
+
+    # Type=Invalid Email
+    # Arrange
+    data = dict(email="invalidemail-example.com")
+    # Act
+    response = requests.post(url, json=data)
+    # Assert
+    assert response.status_code == 422
+
+    # Type=Already Exists
+    # Arrange
+    data = dict(email="some2@example.com")
+    # Act
+    response = requests.post(url, json=data)
+    response = requests.post(url, json=data)
+    # Assert
+    assert response.status_code == 400
+    assert response.json() == dict(msg="Email already exists in waitlist!")
+
+
+def test_login():
+    # Type=Success
     # Arrange
     url = BASE_URL + "login"
     user = dict(username="admin", password="admin")
@@ -36,10 +67,8 @@ def test_login_success():
     assert response.status_code == 200
     assert response.json() == dict(msg="Login successful!")
 
-
-def test_login_failed():
+    # Type=Failed
     # Arrange
-    url = BASE_URL + "login"
     user = dict(username="admin", password="wrong-password")
     # Act
     response = requests.post(url, json=user)
