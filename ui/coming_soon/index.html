@@ -15,24 +15,45 @@
         window.onload = function() {
             var colors = ["bg-blue-100", "bg-red-100", "bg-green-100", "bg-purple-100", "bg-yellow-100"];
             var randomColor = colors[Math.floor(Math.random() * colors.length)];
+            var message_banner = document.getElementById("message_banner")
+            message_banner.innerText = "";
+            message_banner.style.backgroundColor = 'white';
+            message_banner.style.borderRadius = '5px';
+            message_banner.style.fontSize = '14px';
+            message_banner.style.fontWeight = 'bold';
             document.body.classList.add(randomColor);
         }
         
         function subscribe() {
             var email = document.getElementById("email").value;
-            fetch('https://example.com/subscribe', {
+            var message_banner = document.getElementById("message_banner");
+            fetch('http://127.0.0.1:8000/waitlist/subscribe', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ email: email }),
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
+            .then(response => {
+                if (response.status == 200) {
+                    message_banner.style.color = 'green';
+                    message_banner.innerText = 'Subscribed successfully!';
+                    return;
+                }
+                if (response.status == 422) {
+                    message_banner.style.color = 'red';
+                    message_banner.innerText = 'Invalid email. Please check!';
+                    return;
+                }
+                response.json().then(data => {
+                    console.log(data);
+                    message_banner.style.color = 'red';
+                    message_banner.innerText = data['msg'];
+                });
             })
             .catch((error) => {
-                console.error('Error:', error);
+                message_banner.style.color = 'red';
+                message_banner.innerText = "Unknown error occurred. Please try again later.";
             });
         }
     </script>
@@ -52,6 +73,8 @@
                 </button>
             </div>
         </form>
+        <br>
+        <span id="message_banner" class="text-gray-700 text-xs"></span>
     </div>
 </body>
 </html>
