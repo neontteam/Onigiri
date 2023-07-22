@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coming Soon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+    </style>
+    <script>
+        window.onload = function() {
+            var colors = ["bg-blue-100", "bg-red-100", "bg-green-100", "bg-purple-100", "bg-yellow-100"];
+            var randomColor = colors[Math.floor(Math.random() * colors.length)];
+            document.body.classList.add(randomColor);
+        }
+        
+        function subscribe() {
+            var email = document.getElementById("email").value;
+            fetch('https://example.com/subscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: email }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</head>
+<body class="flex items-center justify-center h-screen">
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col">
+        <div class="mb-4">
+            <h1 class="font-bold text-2xl mb-2 text-gray-700">Coming Soon</h1>
+        </div>
+        <form onsubmit="event.preventDefault(); subscribe();">
+            <div class="mb-4">
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="text" placeholder="Email ID">
+            </div>
+            <div class="flex items-center justify-between">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                    Subscribe
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
