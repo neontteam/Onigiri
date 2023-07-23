@@ -24,17 +24,17 @@
             document.body.classList.add(randomColor);
         }
         
-        function subscribe() {
-            var email = document.getElementById("email").value;
-            var message_banner = document.getElementById("message_banner");
-            fetch('http://127.0.0.1:8000/waitlist/subscribe', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email: email }),
-            })
-            .then(response => {
+        async function subscribe() {
+            try {
+                var email = document.getElementById("email").value;
+                var message_banner = document.getElementById("message_banner");
+                const response = await fetch('http://127.0.0.1:8000/waitlist/subscribe', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email }),
+                })
                 if (response.status == 200) {
                     message_banner.style.color = 'green';
                     message_banner.innerText = 'Subscribed successfully!';
@@ -50,11 +50,11 @@
                     message_banner.style.color = 'red';
                     message_banner.innerText = data['msg'];
                 });
-            })
-            .catch((error) => {
+            }
+            catch (error) {
                 message_banner.style.color = 'red';
                 message_banner.innerText = "Unknown error occurred. Please try again later.";
-            });
+            }
         }
     </script>
 </head>
