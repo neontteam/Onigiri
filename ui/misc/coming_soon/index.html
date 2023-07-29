@@ -45,11 +45,10 @@
                     message_banner.innerText = 'Invalid email. Please check!';
                     return;
                 }
-                response.json().then(data => {
-                    console.log(data);
-                    message_banner.style.color = 'red';
-                    message_banner.innerText = data['msg'];
-                });
+                data = await response.json()
+                console.log(data);
+                message_banner.style.color = 'red';
+                message_banner.innerText = data['msg'];
             }
             catch (error) {
                 message_banner.style.color = 'red';
